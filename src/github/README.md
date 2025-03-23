@@ -9,7 +9,7 @@ MCP Server for the GitHub API, enabling file operations, repository management, 
 - **Git History Preservation**: Operations maintain proper Git history without force pushing
 - **Batch Operations**: Support for both single-file and multi-file operations
 - **Advanced Search**: Support for searching code, issues/PRs, and users
-
+- **Repository Statistics**: Comprehensive metrics for repository activity, contributor performance, commit patterns, and pull request workflows
 
 ## Tools
 
@@ -236,50 +236,86 @@ MCP Server for the GitHub API, enabling file operations, repository management, 
      - `merge_method` (optional string): Merge method ('merge', 'squash', 'rebase')
    - Returns: Merge result details
 
-22. `get_pull_request_files`
-   - Get the list of files changed in a pull request
-   - Inputs:
-     - `owner` (string): Repository owner
-     - `repo` (string): Repository name
-     - `pull_number` (number): Pull request number
-   - Returns: Array of changed files with patch and status details
+22. **`get_pull_request_files`**
+    - Get the list of files changed in a pull request
+    - Inputs:
+        - `owner` (string): Repository owner
+        - `repo` (string): Repository name
+        - `pull_number` (number): Pull request number
+    - Returns: Array of changed files with patch and status details
 
-23. `get_pull_request_status`
-   - Get the combined status of all status checks for a pull request
-   - Inputs:
-     - `owner` (string): Repository owner
-     - `repo` (string): Repository name
-     - `pull_number` (number): Pull request number
-   - Returns: Combined status check results and individual check details
+23. **`get_weekly_commit_activity`**
+    - Get weekly additions and deletions for a repository
+    - Inputs:
+        - `owner` (string): Repository owner
+        - `repo` (string): Repository name
+    - Returns: Weekly aggregate of additions and deletions in the repository
 
-24. `update_pull_request_branch`
-   - Update a pull request branch with the latest changes from the base branch (equivalent to GitHub's "Update branch" button)
-   - Inputs:
-     - `owner` (string): Repository owner
-     - `repo` (string): Repository name
-     - `pull_number` (number): Pull request number
-     - `expected_head_sha` (optional string): The expected SHA of the pull request's HEAD ref
-   - Returns: Success message when branch is updated
+24. **`get_yearly_commit_activity`**
+    - Get the last year of commit activity grouped by week
+    - Inputs:
+        - `owner` (string): Repository owner
+        - `repo` (string): Repository name
+    - Returns: Weekly commit counts for the last year
 
-25. `get_pull_request_comments`
-   - Get the review comments on a pull request
-   - Inputs:
-     - `owner` (string): Repository owner
-     - `repo` (string): Repository name
-     - `pull_number` (number): Pull request number
-   - Returns: Array of pull request review comments with details like the comment text, author, and location in the diff
+25. **`get_contributor_stats`**
+    - Get commit statistics for each contributor to a repository
+    - Inputs:
+        - `owner` (string): Repository owner
+        - `repo` (string): Repository name
+    - Returns: Detailed statistics for each contributor including total commits, weekly additions, deletions, and commit counts
 
-26. `get_pull_request_reviews`
-   - Get the reviews on a pull request
-   - Inputs:
-     - `owner` (string): Repository owner
-     - `repo` (string): Repository name
-     - `pull_number` (number): Pull request number
-   - Returns: Array of pull request reviews with details like the review state (APPROVED, CHANGES_REQUESTED, etc.), reviewer, and review body
+26. **`get_weekly_commit_count`**
+    - Get weekly commit counts for the repository owner and all contributors
+    - Inputs:
+        - `owner` (string): Repository owner
+        - `repo` (string): Repository name
+    - Returns: Weekly commit counts for the repository owner and all contributors
+
+27. **`get_hourly_commit_count`**
+    - Get hourly commit counts for each day of the week
+    - Inputs:
+        - `owner` (string): Repository owner
+        - `repo` (string): Repository name
+    - Returns: Hourly commit counts for each day of the week (0-6, Sunday to Saturday)
+
+28. **`get_pr_velocity_metrics`**
+    - Get PR velocity metrics including time to merge and PR throughput
+    - Inputs:
+        - `owner` (string): Repository owner
+        - `repo` (string): Repository name
+        - `since` (optional string): Start date in ISO 8601 format (YYYY-MM-DD)
+        - `until` (optional string): End date in ISO 8601 format (YYYY-MM-DD)
+        - `state` (optional string): State of PRs to analyze ('open', 'closed', 'all')
+        - `base` (optional string): Filter by base branch name
+    - Returns: PR velocity metrics including average time to merge and PR throughput
+
+29. **`get_pr_size_distribution`**
+    - Get PR size distribution metrics including file changes, additions, and deletions
+    - Inputs:
+        - `owner` (string): Repository owner
+        - `repo` (string): Repository name
+        - `since` (optional string): Start date in ISO 8601 format (YYYY-MM-DD)
+        - `until` (optional string): End date in ISO 8601 format (YYYY-MM-DD)
+        - `state` (optional string): State of PRs to analyze ('open', 'closed', 'all')
+        - `limit` (optional number): Maximum number of PRs to analyze
+    - Returns: PR size distribution metrics and categorization by size (XS, S, M, L, XL)
+
+30. **`get_pr_review_statistics`**
+    - Get PR review statistics including approval rates, review times, and comment density
+    - Inputs:
+        - `owner` (string): Repository owner
+        - `repo` (string): Repository name
+        - `since` (optional string): Start date in ISO 8601 format (YYYY-MM-DD)
+        - `until` (optional string): End date in ISO 8601 format (YYYY-MM-DD)
+        - `state` (optional string): State of PRs to analyze ('open', 'closed', 'all')
+        - `limit` (optional number): Maximum number of PRs to analyze
+    - Returns: PR review statistics including average time to first review and approval rates
 
 ## Search Query Syntax
 
 ### Code Search
+
 - `language:javascript`: Search by programming language
 - `repo:owner/name`: Search in specific repository
 - `path:app/src`: Search in specific path
@@ -287,6 +323,7 @@ MCP Server for the GitHub API, enabling file operations, repository management, 
 - Example: `q: "import express" language:typescript path:src/`
 
 ### Issues Search
+
 - `is:issue` or `is:pr`: Filter by type
 - `is:open` or `is:closed`: Filter by state
 - `label:bug`: Search by label
@@ -294,6 +331,7 @@ MCP Server for the GitHub API, enabling file operations, repository management, 
 - Example: `q: "memory leak" is:issue is:open label:bug`
 
 ### Users Search
+
 - `type:user` or `type:org`: Filter by account type
 - `followers:>1000`: Filter by followers
 - `location:London`: Search by location
@@ -304,14 +342,17 @@ For detailed search syntax, see [GitHub's searching documentation](https://docs.
 ## Setup
 
 ### Personal Access Token
+
 [Create a GitHub Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) with appropriate permissions:
-   - Go to [Personal access tokens](https://github.com/settings/tokens) (in GitHub Settings > Developer settings)
-   - Select which repositories you'd like this token to have access to (Public, All, or Select)
-   - Create a token with the `repo` scope ("Full control of private repositories")
-     - Alternatively, if working only with public repositories, select only the `public_repo` scope
-   - Copy the generated token
+
+- Go to [Personal access tokens](https://github.com/settings/tokens) (in GitHub Settings > Developer settings)
+- Select which repositories you'd like this token to have access to (Public, All, or Select)
+- Create a token with the `repo` scope ("Full control of private repositories")
+  - Alternatively, if working only with public repositories, select only the `public_repo` scope
+- Copy the generated token
 
 ### Usage with Claude Desktop
+
 To use this with Claude Desktop, add the following to your `claude_desktop_config.json`:
 
 #### Docker

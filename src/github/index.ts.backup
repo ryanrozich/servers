@@ -153,6 +153,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         inputSchema: zodToJsonSchema(issues.GetIssueSchema)
       },
       {
+<<<<<<< Updated upstream
         name: "get_pull_request",
         description: "Get details of a specific pull request",
         inputSchema: zodToJsonSchema(pulls.GetPullRequestSchema)
@@ -196,8 +197,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         name: "get_pull_request_reviews",
         description: "Get the reviews on a pull request",
         inputSchema: zodToJsonSchema(pulls.GetPullRequestReviewsSchema)
-      },
-      {
+=======
         name: "get_weekly_commit_activity",
         description: "Get weekly additions and deletions for a repository",
         inputSchema: zodToJsonSchema(statistics.RepoStatsSchema)
@@ -236,6 +236,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         name: "get_pr_review_statistics",
         description: "Get PR review statistics including approval rates, review times, and comment density",
         inputSchema: zodToJsonSchema(prStatistics.PrReviewStatsSchema)
+>>>>>>> Stashed changes
       }
     ],
   };
@@ -422,6 +423,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       }
 
+<<<<<<< Updated upstream
       case "get_pull_request": {
         const args = pulls.GetPullRequestSchema.parse(request.params.arguments);
         const pullRequest = await pulls.getPullRequest(args.owner, args.repo, args.pull_number);
@@ -495,9 +497,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const reviews = await pulls.getPullRequestReviews(args.owner, args.repo, args.pull_number);
         return {
           content: [{ type: "text", text: JSON.stringify(reviews, null, 2) }],
-        };
-      }
-
+=======
       case "get_weekly_commit_activity": {
         const args = statistics.RepoStatsSchema.parse(request.params.arguments);
         const stats = await statistics.getWeeklyCommitActivity(args.owner, args.repo);
@@ -562,6 +562,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const stats = await prStatistics.getPrReviewStatistics(owner, repo, options);
         return {
           content: [{ type: "text", text: JSON.stringify(stats, null, 2) }],
+>>>>>>> Stashed changes
         };
       }
 

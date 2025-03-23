@@ -51,6 +51,34 @@ export async function githubRequest(
 
   const responseBody = await parseResponseBody(response);
 
+  // Special handling for 202 responses (common with statistics endpoints)
+  if (response.status === 202) {
+    return {
+      status: 202,
+      message: "GitHub is computing statistics. This may take some time. Please try again later.",
+      isComputing: true,
+      url: url
+    };
+  }
+  
+  // Additional handling for statistics endpoints that might return empty objects while computing
+  // Check if this is a stats endpoint and the response is empty
+  if (
+    url.includes('/stats/') && 
+    ((Array.isArray(responseBody) && responseBody.length === 0) || 
+     (typeof responseBody === 'object' && responseBody !== null && Object.keys(responseBody).length === 0))
+  ) {
+    // For statistics endpoints, an empty response might indicate that GitHub is still computing
+    // or that there's genuinely no data. We'll provide a more informative response.
+    return {
+      status: response.status,
+      message: "GitHub returned empty statistics. This could mean statistics are still being computed or no data is available.",
+      isEmpty: true,
+      url: url,
+      originalResponse: responseBody
+    };
+  }
+
   if (!response.ok) {
     throw createGitHubError(response.status, responseBody);
   }
@@ -135,4 +163,86 @@ export async function checkUserExists(username: string): Promise<boolean> {
     }
     throw error;
   }
+}
+
+/**
+ * Fetch all paginated results from a GitHub API endpoint
+ * @param url Base URL for the API endpoint
+ * @param params URL parameters as URLSearchParams or Record
+ * @returns Array of all items across all pages
+ */
+export async function getAllPaginatedResults(url: string, params?: URLSearchParams | Record<string, string>): Promise<any[]> {
+  let currentUrl = url;
+  let allResults: any[] = [];
+  let hasNextPage = true;
+  let page = 1;
+  
+  // Convert params object to URLSearchParams if needed
+  let searchParams: URLSearchParams;
+  if (params instanceof URLSearchParams) {
+    searchParams = params;
+  } else if (params) {
+    searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        searchParams.append(key, value.toString());
+      }
+    });
+  } else {
+    searchParams = new URLSearchParams();
+  }
+  
+  // Ensure we have a page parameter
+  if (!searchParams.has('page')) {
+    searchParams.append('page', '1');
+  }
+  
+  while (hasNextPage) {
+    // Update page parameter
+    searchParams.set('page', page.toString());
+    
+    // Build URL with parameters
+    const urlWithParams = `${currentUrl}${currentUrl.includes('?') ? '&' : '?'}${searchParams.toString()}`;
+    
+    // Make request
+    const response = await fetch(urlWithParams, {
+      headers: {
+        "Accept": "application/vnd.github.v3+json",
+        "User-Agent": USER_AGENT,
+        "Authorization": process.env.GITHUB_PERSONAL_ACCESS_TOKEN ? 
+          `Bearer ${process.env.GITHUB_PERSONAL_ACCESS_TOKEN}` : ''
+      }
+    });
+    
+    if (!response.ok) {
+      const responseBody = await parseResponseBody(response);
+      throw createGitHubError(response.status, responseBody);
+    }
+    
+    // Parse response
+    const results = await response.json();
+    
+    // Add results to collection
+    if (Array.isArray(results)) {
+      allResults = allResults.concat(results);
+      
+      // Check if we have more pages
+      if (results.length === 0) {
+        hasNextPage = false;
+      } else {
+        // Check for Link header
+        const linkHeader = response.headers.get('Link');
+        if (!linkHeader || !linkHeader.includes('rel="next"')) {
+          hasNextPage = false;
+        } else {
+          page++;
+        }
+      }
+    } else {
+      // If not an array, just return this result
+      return [results];
+    }
+  }
+  
+  return allResults;
 }
