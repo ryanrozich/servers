@@ -1,0 +1,109 @@
+#!/usr/bin/env just
+
+# GitHub MCP Server Test Runner
+# Run with: just <recipe>
+
+# Set default recipe to list available recipes
+default:
+    @just --list
+
+# Set the working directory
+root_dir := "."
+
+# Compile TypeScript files
+compile:
+    @echo "Compiling TypeScript files..."
+    @time npx tsc
+
+# Run unit tests for PR statistics
+test-pr-stats:
+    @echo "Running PR statistics unit tests..."
+    @time npx jest tests/unit/operations/pr-statistics.test.ts --no-cache --testEnvironment=node
+
+# Run unit tests for test utilities
+test-utils:
+    @echo "Running test utilities unit tests..."
+    @time npx jest tests/unit/helpers/test-utils.test.ts --no-cache --testEnvironment=node
+
+# Run all unit tests (TypeScript files only)
+test-unit: 
+    @echo "Running all unit tests..."
+    @time npx jest "tests/unit/.*\.ts$" --no-cache --testEnvironment=node
+
+# Run PR statistics integration tests
+test-pr-stats-integration: compile
+    @echo "Running PR statistics integration tests..."
+    @time node dist/tests/integration/pr-statistics.integration.js
+
+# Run repository statistics integration tests
+test-repo-stats-integration: compile
+    @echo "Running repository statistics integration tests..."
+    @time node dist/tests/integration/repo-statistics.integration.js
+
+# Run all integration tests
+test-integration: compile
+    @echo "Running all integration tests..."
+    @time node dist/tests/integration/pr-statistics.integration.js
+    @time node dist/tests/integration/repo-statistics.integration.js
+
+# Run Docker-based E2E tests for PR statistics
+test-pr-stats-e2e:
+    @echo "Running Docker-based PR statistics E2E tests..."
+    @time bash tests/e2e/test-pr-statistics.sh
+
+# Run direct E2E tests for PR statistics
+test-pr-stats-direct-e2e:
+    @echo "Running direct PR statistics E2E tests..."
+    @time bash tests/e2e/test-pr-stats-direct.sh
+
+# Run Jest-based E2E tests for PR statistics
+test-pr-stats-jest-e2e: compile
+    @echo "Running Jest-based PR statistics E2E tests..."
+    @time npx jest tests/e2e/pr-statistics.e2e.test.ts --no-cache --testEnvironment=node --verbose
+
+# Run all E2E tests
+test-e2e: 
+    @echo "Running all E2E tests..."
+    @time bash tests/e2e/run-all.sh
+
+# Helper to print test result
+print-result result name:
+    @if [ "{{result}}" -eq 0 ]; then echo "  ✅ {{name}}: Passed"; else echo "  ❌ {{name}}: Failed"; fi
+
+# Run all tests (unit, integration, and E2E) with results digest
+test-all:
+    #!/usr/bin/env bash
+    echo "Running all tests..."
+    echo "\n=== Running Unit Tests ===\n"
+    PR_STATS_RESULT=0; time just test-pr-stats || PR_STATS_RESULT=1
+    UTILS_RESULT=0; time just test-utils || UTILS_RESULT=1
+    echo "\n=== Running Integration Tests ===\n"
+    PR_STATS_INT_RESULT=0; time just test-pr-stats-integration || PR_STATS_INT_RESULT=1
+    REPO_STATS_INT_RESULT=0; time just test-repo-stats-integration || REPO_STATS_INT_RESULT=1
+    echo "\n=== Running E2E Tests ===\n"
+    JEST_E2E_RESULT=0; time just test-pr-stats-jest-e2e || JEST_E2E_RESULT=1
+    echo "\n=== Test Results Digest ===\n"
+    echo "Unit Tests:"
+    [ "$PR_STATS_RESULT" -eq 0 ] && echo "  ✅ PR Statistics: Passed" || echo "  ❌ PR Statistics: Failed"
+    [ "$UTILS_RESULT" -eq 0 ] && echo "  ✅ Test Utilities: Passed" || echo "  ❌ Test Utilities: Failed"
+    echo "\nIntegration Tests:"
+    [ "$PR_STATS_INT_RESULT" -eq 0 ] && echo "  ✅ PR Statistics: Passed" || echo "  ❌ PR Statistics: Failed"
+    [ "$REPO_STATS_INT_RESULT" -eq 0 ] && echo "  ✅ Repository Statistics: Passed" || echo "  ❌ Repository Statistics: Failed"
+    echo "\nE2E Tests:"
+    [ "$JEST_E2E_RESULT" -eq 0 ] && echo "  ✅ Jest PR Statistics E2E: Passed" || echo "  ❌ Jest PR Statistics E2E: Failed"
+    echo "\n=== All tests completed! ===\n"
+    if [ "$PR_STATS_RESULT" -eq 0 ] && [ "$UTILS_RESULT" -eq 0 ] && [ "$PR_STATS_INT_RESULT" -eq 0 ] && [ "$REPO_STATS_INT_RESULT" -eq 0 ] && [ "$JEST_E2E_RESULT" -eq 0 ]; then
+      echo "🎉 All tests passed successfully!\n"
+    else
+      echo "❌ Some tests failed. Please check the logs above for details.\n"
+      exit 1
+    fi
+
+# Clean compiled files
+clean:
+    @echo "Cleaning compiled files..."
+    rm -rf dist
+
+# Rebuild and run all tests
+rebuild: clean compile test-all
+    @echo "Rebuild and tests completed!"

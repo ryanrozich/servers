@@ -312,44 +312,137 @@ MCP Server for the GitHub API, enabling file operations, repository management, 
         - `limit` (optional number): Maximum number of PRs to analyze
     - Returns: PR review statistics including average time to first review and approval rates
 
-## Search Query Syntax
+## Repository Statistics Tools
 
-### Code Search
+1. `get_weekly_commit_activity`
+   - Get weekly additions and deletions for a repository
+   - Inputs:
+     - `owner` (string): Repository owner
+     - `repo` (string): Repository name
+   - Returns: Array of weekly commit data with additions and deletions
 
-- `language:javascript`: Search by programming language
-- `repo:owner/name`: Search in specific repository
-- `path:app/src`: Search in specific path
-- `extension:js`: Search by file extension
-- Example: `q: "import express" language:typescript path:src/`
+2. `get_yearly_commit_activity`
+   - Get the last year of commit activity grouped by week
+   - Inputs:
+     - `owner` (string): Repository owner
+     - `repo` (string): Repository name
+   - Returns: Array of weekly commit counts for the last year
 
-### Issues Search
+3. `get_contributor_stats`
+   - Get commit statistics for each contributor to a repository
+   - Inputs:
+     - `owner` (string): Repository owner
+     - `repo` (string): Repository name
+   - Returns: Array of contributor statistics with commit counts and history
 
-- `is:issue` or `is:pr`: Filter by type
-- `is:open` or `is:closed`: Filter by state
-- `label:bug`: Search by label
-- `author:username`: Search by author
-- Example: `q: "memory leak" is:issue is:open label:bug`
+4. `get_weekly_commit_count`
+   - Get weekly commit counts for the repository owner and all contributors
+   - Inputs:
+     - `owner` (string): Repository owner
+     - `repo` (string): Repository name
+   - Returns: Object with all and owner commit counts by week
 
-### Users Search
+5. `get_hourly_commit_count`
+   - Get hourly commit counts for each day of the week
+   - Inputs:
+     - `owner` (string): Repository owner
+     - `repo` (string): Repository name
+   - Returns: Array of hourly commit counts for each day
 
-- `type:user` or `type:org`: Filter by account type
-- `followers:>1000`: Filter by followers
-- `location:London`: Search by location
-- Example: `q: "fullstack developer" location:London followers:>100`
+## PR Analytics Tools
 
-For detailed search syntax, see [GitHub's searching documentation](https://docs.github.com/en/search-github/searching-on-github).
+1. `get_pr_velocity_metrics`
+   - Get PR velocity metrics including time to merge, time to first review, and PR throughput
+   - Inputs:
+     - `owner` (string): Repository owner
+     - `repo` (string): Repository name
+     - `options` (object, optional):
+       - `since` (string, optional): Start date in ISO 8601 format
+       - `until` (string, optional): End date in ISO 8601 format
+       - `state` (string, optional): PR state ('open', 'closed', 'all')
+       - `base` (string, optional): Filter by base branch name
+   - Returns: Object with PR velocity metrics
 
-## Setup
+2. `get_pr_size_distribution`
+   - Get PR size distribution metrics including file changes, additions, and deletions
+   - Inputs:
+     - `owner` (string): Repository owner
+     - `repo` (string): Repository name
+     - `options` (object, optional):
+       - `since` (string, optional): Start date in ISO 8601 format
+       - `until` (string, optional): End date in ISO 8601 format
+       - `state` (string, optional): PR state ('open', 'closed', 'all')
+       - `limit` (number, optional): Maximum number of PRs to analyze
+   - Returns: Object with PR size distribution metrics
 
-### Personal Access Token
+3. `get_pr_review_statistics`
+   - Get PR review statistics including approval rates, review times, and comment density
+   - Inputs:
+     - `owner` (string): Repository owner
+     - `repo` (string): Repository name
+     - `options` (object, optional):
+       - `since` (string, optional): Start date in ISO 8601 format
+       - `until` (string, optional): End date in ISO 8601 format
+       - `state` (string, optional): PR state ('open', 'closed', 'all')
+       - `limit` (number, optional): Maximum number of PRs to analyze
+   - Returns: Object with PR review statistics
 
-[Create a GitHub Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) with appropriate permissions:
+## Development
 
-- Go to [Personal access tokens](https://github.com/settings/tokens) (in GitHub Settings > Developer settings)
-- Select which repositories you'd like this token to have access to (Public, All, or Select)
-- Create a token with the `repo` scope ("Full control of private repositories")
-  - Alternatively, if working only with public repositories, select only the `public_repo` scope
-- Copy the generated token
+### Setup
+
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Compile TypeScript: `npx tsc`
+
+### Testing
+
+This project uses Jest for testing and Just as a command runner. To run tests, you'll need a GitHub personal access token with appropriate permissions.
+
+#### Setting up a GitHub Token
+
+1. Go to your GitHub account settings > Developer settings > Personal access tokens > Fine-grained tokens
+2. Click "Generate new token"
+3. Give the token a name and set the expiration
+4. Select the repositories you want to test with
+5. Create a token with the `repo` scope ("Full control of private repositories")
+   - Alternatively, if working only with public repositories, select only the `public_repo` scope
+6. Copy the generated token
+
+#### Running Tests
+
+Set your GitHub token as an environment variable:
+
+```bash
+export GITHUB_PERSONAL_ACCESS_TOKEN=your_token_here
+```
+
+Or create a `.token` file in your home directory with just the token.
+
+Then use Just to run the tests:
+
+```bash
+# List all available test commands
+just
+
+# Run specific test types
+just test-utils            # Run test utilities unit tests
+just test-pr-stats         # Run PR statistics unit tests
+just test-unit             # Run all unit tests
+
+# Run integration tests
+just test-pr-stats-integration      # Run PR statistics integration tests
+just test-repo-stats-integration    # Run repository statistics integration tests
+just test-integration               # Run all integration tests
+
+# Run all tests
+just test-all
+
+# Clean and rebuild
+just clean                 # Remove compiled files
+just compile               # Compile TypeScript files
+just rebuild               # Clean, compile, and run all tests
+```
 
 ### Usage with Claude Desktop
 
@@ -377,7 +470,7 @@ To use this with Claude Desktop, add the following to your `claude_desktop_confi
 }
 ```
 
-### NPX
+#### NPX
 
 ```json
 {
@@ -407,3 +500,30 @@ docker build -t mcp/github -f src/github/Dockerfile .
 ## License
 
 This MCP server is licensed under the MIT License. This means you are free to use, modify, and distribute the software, subject to the terms and conditions of the MIT License. For more details, please see the LICENSE file in the project repository.
+
+## Search Query Syntax
+
+### Code Search
+
+- `language:javascript`: Search by programming language
+- `repo:owner/name`: Search in specific repository
+- `path:app/src`: Search in specific path
+- `extension:js`: Search by file extension
+- Example: `q: "import express" language:typescript path:src/`
+
+### Issues Search
+
+- `is:issue` or `is:pr`: Filter by type
+- `is:open` or `is:closed`: Filter by state
+- `label:bug`: Search by label
+- `author:username`: Search by author
+- Example: `q: "memory leak" is:issue is:open label:bug`
+
+### Users Search
+
+- `type:user` or `type:org`: Filter by account type
+- `followers:>1000`: Filter by followers
+- `location:London`: Search by location
+- Example: `q: "fullstack developer" location:London followers:>100`
+
+For detailed search syntax, see [GitHub's searching documentation](https://docs.github.com/en/search-github/searching-on-github).

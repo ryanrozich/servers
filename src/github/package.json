@@ -17,8 +17,12 @@
     "build": "tsc && shx chmod +x dist/*.js",
     "prepare": "npm run build",
     "watch": "tsc --watch",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch"
+    "test": "npx jest",
+    "test:watch": "npx jest --watch",
+    "test:unit": "npx jest tests/unit",
+    "test:integration": "npx jest tests/integration",
+    "test:e2e": "bash tests/e2e/run-all.sh",
+    "test:all": "bash tests/run-all-tests.sh"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.0.1",
@@ -31,7 +35,9 @@
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
+    "dotenv": "^16.4.7",
     "jest": "^29.7.0",
+    "jest-ts-webcompat-resolver": "^1.0.0",
     "shx": "^0.3.4",
     "ts-jest": "^29.2.6",
     "typescript": "^5.6.2"

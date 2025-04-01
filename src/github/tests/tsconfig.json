@@ -1,0 +1,20 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "types": ["jest", "node"],
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "Node16",
+    "baseUrl": ".",
+    "paths": {
+      "*": ["../node_modules/*", "../src/*", "*"]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "../operations/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

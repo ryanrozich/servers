@@ -1,18 +1,18 @@
 import { jest } from '@jest/globals';
-import * as pulls from '../operations/pulls.js';
+import * as pulls from '../../../operations/pulls.js';
 import {
   getPrVelocityMetrics,
   getPrSizeDistribution,
   getPrReviewStatistics
-} from '../operations/pr-statistics.js';
-import { getAllPaginatedResults } from '../common/utils.js';
+} from '../../../operations/pr-statistics.js';
+import { getAllPaginatedResults } from '../../../common/utils.js';
 
 // Mock the dependencies
-jest.mock('../common/utils.js', () => ({
+jest.mock('../../../common/utils.js', () => ({
   getAllPaginatedResults: jest.fn()
 }));
 
-jest.mock('../operations/pulls.js', () => ({
+jest.mock('../../../operations/pulls.js', () => ({
   getPullRequestFiles: jest.fn(),
   getPullRequestReviews: jest.fn(),
   getPullRequestComments: jest.fn()
@@ -565,15 +565,15 @@ describe('PR Statistics Tools', () => {
       
       expect(result).toEqual({
         analyzed_prs: 2,
-        prs_with_reviews: 2,
         avg_reviews_per_pr: 2,
         avg_comments_per_pr: 2.5, // (2 + 3) / 2
-        avg_time_to_first_review_hours: expect.any(Number),
-        avg_time_to_first_review_days: expect.any(Number),
+        prs_with_reviews: 2,
         approval_rate_percentage: 100, // Both PRs were approved
         changes_requested_rate_percentage: 50, // 1 of 2 PRs had changes requested
-        pr_details: expect.any(Array),
-        time_range: expect.any(Object)
+        avg_time_to_first_review_days: expect.any(Number),
+        avg_time_to_first_review_hours: expect.any(Number),
+        time_range: expect.any(Object),
+        pr_details: expect.any(Array)
       });
     });
 
@@ -587,15 +587,15 @@ describe('PR Statistics Tools', () => {
       // Assertions
       expect(result).toEqual({
         analyzed_prs: 0,
-        prs_with_reviews: 0,
         avg_reviews_per_pr: 0,
         avg_comments_per_pr: 0,
-        avg_time_to_first_review_hours: 0,
-        avg_time_to_first_review_days: 0,
+        prs_with_reviews: 0,
         approval_rate_percentage: 0,
         changes_requested_rate_percentage: 0,
-        pr_details: [],
-        time_range: expect.any(Object)
+        avg_time_to_first_review_days: 0,
+        avg_time_to_first_review_hours: 0,
+        time_range: expect.any(Object),
+        pr_details: []
       });
     });
   });

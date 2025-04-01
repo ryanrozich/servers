@@ -2,8 +2,7 @@ import { z } from "zod";
 import { githubRequest } from "../common/utils.js";
 import {
   GitHubPullRequestSchema,
-  GitHubIssueAssigneeSchema,
-  GitHubRepositorySchema,
+  GitHubIssueAssigneeSchema
 } from "../common/types.js";
 
 // Schema definitions
@@ -14,8 +13,8 @@ export const PullRequestFileSchema = z.object({
   additions: z.number(),
   deletions: z.number(),
   changes: z.number(),
-  blob_url: z.string(),
-  raw_url: z.string(),
+  blob_url: z.string().nullable(),
+  raw_url: z.string().nullable(),
   contents_url: z.string(),
   patch: z.string().optional()
 });

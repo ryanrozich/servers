@@ -1,0 +1,183 @@
+{
+  "mockPRs": [
+    {
+      "number": 1,
+      "title": "Test PR 1",
+      "state": "closed",
+      "created_at": "2025-01-01T10:00:00Z",
+      "merged_at": "2025-01-02T10:00:00Z",
+      "closed_at": "2025-01-02T10:00:00Z"
+    },
+    {
+      "number": 2,
+      "title": "Test PR 2",
+      "state": "open",
+      "created_at": "2025-01-03T10:00:00Z",
+      "merged_at": null,
+      "closed_at": null
+    },
+    {
+      "number": 3,
+      "title": "Test PR 3",
+      "state": "closed",
+      "created_at": "2025-01-04T10:00:00Z",
+      "merged_at": "2025-01-05T10:00:00Z",
+      "closed_at": "2025-01-05T10:00:00Z"
+    }
+  ],
+  "mockFiles": {
+    "small": [
+      { 
+        "filename": "file1.ts", 
+        "additions": 10, 
+        "deletions": 2, 
+        "changes": 12, 
+        "status": "modified", 
+        "sha": "abc123", 
+        "blob_url": "https://github.com/blob/abc123", 
+        "raw_url": "https://github.com/raw/abc123", 
+        "contents_url": "https://api.github.com/contents/file1.ts" 
+      },
+      { 
+        "filename": "file2.ts", 
+        "additions": 5, 
+        "deletions": 3, 
+        "changes": 8, 
+        "status": "modified", 
+        "sha": "def456", 
+        "blob_url": "https://github.com/blob/def456", 
+        "raw_url": "https://github.com/raw/def456", 
+        "contents_url": "https://api.github.com/contents/file2.ts" 
+      }
+    ],
+    "medium": [
+      { 
+        "filename": "file3.ts", 
+        "additions": 50, 
+        "deletions": 20, 
+        "changes": 70, 
+        "status": "modified", 
+        "sha": "ghi789", 
+        "blob_url": "https://github.com/blob/ghi789", 
+        "raw_url": "https://github.com/raw/ghi789", 
+        "contents_url": "https://api.github.com/contents/file3.ts" 
+      },
+      { 
+        "filename": "file4.ts", 
+        "additions": 20, 
+        "deletions": 10, 
+        "changes": 30, 
+        "status": "modified", 
+        "sha": "jkl012", 
+        "blob_url": "https://github.com/blob/jkl012", 
+        "raw_url": "https://github.com/raw/jkl012", 
+        "contents_url": "https://api.github.com/contents/file4.ts" 
+      }
+    ],
+    "large": [
+      { 
+        "filename": "file5.ts", 
+        "additions": 300, 
+        "deletions": 100, 
+        "changes": 400, 
+        "status": "modified", 
+        "sha": "mno345", 
+        "blob_url": "https://github.com/blob/mno345", 
+        "raw_url": "https://github.com/raw/mno345", 
+        "contents_url": "https://api.github.com/contents/file5.ts" 
+      },
+      { 
+        "filename": "file6.ts", 
+        "additions": 80, 
+        "deletions": 20, 
+        "changes": 100, 
+        "status": "modified", 
+        "sha": "pqr678", 
+        "blob_url": "https://github.com/blob/pqr678", 
+        "raw_url": "https://github.com/raw/pqr678", 
+        "contents_url": "https://api.github.com/contents/file6.ts" 
+      }
+    ]
+  },
+  "mockReviews": {
+    "pr1": [
+      {
+        "id": 1,
+        "node_id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3MQ==",
+        "user": {
+          "login": "user1",
+          "id": 1
+        },
+        "body": "Looks good!",
+        "state": "APPROVED",
+        "submitted_at": "2025-01-01T15:00:00Z"
+      },
+      {
+        "id": 2,
+        "node_id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3Mg==",
+        "user": {
+          "login": "user2",
+          "id": 2
+        },
+        "body": "I have some concerns",
+        "state": "COMMENTED",
+        "submitted_at": "2025-01-01T14:00:00Z"
+      }
+    ],
+    "pr3": [
+      {
+        "id": 3,
+        "node_id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3Mw==",
+        "user": {
+          "login": "user1",
+          "id": 1
+        },
+        "body": "Approved with some comments",
+        "state": "APPROVED",
+        "submitted_at": "2025-01-04T16:00:00Z"
+      }
+    ]
+  },
+  "mockComments": {
+    "pr1": [
+      { 
+        "id": 1, 
+        "node_id": "MDExOlB1bGxSZXF1ZXN0Q29tbWVudDE=",
+        "path": "file1.ts",
+        "position": 5,
+        "body": "This could be improved",
+        "user": {
+          "login": "user2",
+          "id": 2
+        },
+        "created_at": "2025-01-01T14:30:00Z"
+      },
+      { 
+        "id": 2, 
+        "node_id": "MDExOlB1bGxSZXF1ZXN0Q29tbWVudDI=",
+        "path": "file2.ts",
+        "position": 10,
+        "body": "Good solution",
+        "user": {
+          "login": "user1",
+          "id": 1
+        },
+        "created_at": "2025-01-01T15:30:00Z"
+      }
+    ],
+    "pr3": [
+      { 
+        "id": 3, 
+        "node_id": "MDExOlB1bGxSZXF1ZXN0Q29tbWVudDM=",
+        "path": "file3.ts",
+        "position": 15,
+        "body": "Consider using a different approach",
+        "user": {
+          "login": "user1",
+          "id": 1
+        },
+        "created_at": "2025-01-04T16:30:00Z"
+      }
+    ]
+  }
+}

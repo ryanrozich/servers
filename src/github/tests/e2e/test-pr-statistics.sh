@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Test script for PR statistics tools
+# E2E test script for PR statistics tools
 # This script tests the PR statistics tools using the Docker container
 
 # Check if GitHub token is provided
@@ -76,7 +76,7 @@ if ! docker images | grep -q "mcp/github"; then
   cd - > /dev/null
 fi
 
-echo "\n🚀 Starting PR statistics tools tests\n"
+echo "\n🚀 Starting PR statistics tools E2E tests\n"
 
 # Test PR velocity metrics
 run_test "get_pr_velocity_metrics" "{\"owner\":\"$OWNER\",\"repo\":\"$REPO\"}" \
@@ -99,4 +99,4 @@ run_test "get_pr_review_statistics" "{\"owner\":\"$OWNER\",\"repo\":\"$REPO\"}" 
 run_test "get_pr_review_statistics" "{\"owner\":\"$OWNER\",\"repo\":\"$REPO\",\"state\":\"closed\"}" \
   "PR Review Statistics - Closed PRs Only"
 
-echo "\n🏁 All tests completed!\n"
+echo "\n🏁 All E2E tests completed!\n"
